@@ -379,6 +379,54 @@ piece_screen *piece_ansi_parser_read(FILE *fd, const char *filename)
                             x_saved = x;
                             break;
 
+                        case 't':   // "24 bit ANSI", custom hack by Picoe
+                                    // http://picoe.ca/2014/03/07/24-bit-ansi/
+                            if (piece_list_size(sequences) == 4) {
+                                if (display->palette == NULL) {
+                                    piece_palette *ega = piece_palette_by_name("ega");
+                                    display->palette = piece_palette_new("custom", 16);
+                                    for (i = 0; i < 16; i++) {
+                                        display->palette->color[i] = ega->color[i];
+                                    }
+                                }
+
+                                char r = atoi(ANSI_SEQ_CC(sequences, 1)),
+                                     g = atoi(ANSI_SEQ_CC(sequences, 2)),
+                                     b = atoi(ANSI_SEQ_CC(sequences, 3));
+                                int ci = -1;
+
+                                for (i = 0; i < display->palette->colors; i++) {
+                                    if (display->palette->color[i].r == r &&
+                                        display->palette->color[i].g == g &&
+                                        display->palette->color[i].b == b) {
+                                        ci = i;
+                                        break;
+                                    }
+                                }
+                                if (display->palette->colors < 255) {
+                                    piece_rgb_color rgb = {r, g, b};
+                                    ci = piece_palette_add_color(
+                                        display->palette,
+                                        &rgb
+                                    );
+                                }
+                                if (ci == -1) {
+                                    fprintf(stderr, "%s: failed to allocate 24 bit color\n",
+                                                    filename);
+                                } else {
+                                    if (atoi(ANSI_SEQ_CC(sequences, 0)) == 0) {
+                                        display->current->bg = (char) ci & 0xff;
+                                    } else {
+                                        display->current->bg = (char) ci & 0xff;
+                                    }
+                                }
+
+                            } else {
+                                fprintf(stderr, "%s: invalid 24 bit color\n",
+                                                filename);
+                            }
+                            break;
+
                         case 'u':   // RCP (Restore Cursor Position)
                             y = y_saved;
                             x = x_saved;
