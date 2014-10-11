@@ -417,7 +417,7 @@ piece_screen *piece_ansi_parser_read(FILE *fd, const char *filename)
                                     if (atoi(ANSI_SEQ_CC(sequences, 0)) == 0) {
                                         display->current->bg = (char) ci & 0xff;
                                     } else {
-                                        display->current->bg = (char) ci & 0xff;
+                                        display->current->fg = (char) ci & 0xff;
                                     }
                                 }
 
