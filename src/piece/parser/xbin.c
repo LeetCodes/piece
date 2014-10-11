@@ -115,9 +115,9 @@ piece_screen *xbin_parser_read(FILE *fd, const char *filename)
         memcpy(xbin_palette->color, p, i);
         p += i;
         for (i = 0; i < 16; ++i) {
-            xbin_palette->color[i].r <<= 4;
-            xbin_palette->color[i].g <<= 4;
-            xbin_palette->color[i].b <<= 4;
+            xbin_palette->color[i].r <<= 2;
+            xbin_palette->color[i].g <<= 2;
+            xbin_palette->color[i].b <<= 2;
         }
     } else {
         dprintf("%s: using ega palette\n", filename);
